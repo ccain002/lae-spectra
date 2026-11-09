@@ -1,0 +1,12 @@
+__pycache__/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+*.png
+# never commit the data itself
+*.tar
+*.part
+spec_out_*
+halo_xvm_catalog*
+wav_out_*
