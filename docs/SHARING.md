@@ -12,14 +12,14 @@ The data is shared in two parts:
 
 ## Globus
 
-1. **Move the data off scratch first.** Lustre scratch is purged, so copy
-   `LAE_Catalogs.tar` (from `/expanse/lustre/scratch/ccain002/temp_project/for_Yongda/`)
-   to project storage or another location that won't be deleted. `LAEData`
-   reads the tar as-is. Repackaging (`laespec pack`, below) is optional: it
-   only helps people who want just one model (about 7 GB) instead of the whole
-   48 GB.
-2. In the Globus web app, open the SDSC Expanse endpoint and go to the
-   directory holding the tar. Choose *Share → Add guest collection*.
+1. **The data lives on project storage**, not scratch, because Lustre scratch is purged:
+   `/expanse/lustre/projects/ucr138/ccain002/LAE_Catalogs/LAE_Catalogs.tar`.
+   That directory holds only this tar, so a guest collection rooted there
+   shares nothing else. `LAEData` reads the tar as-is. Repackaging
+   (`laespec pack`, below) is optional: it only helps people who want just
+   one model (about 7 GB) instead of the whole 48 GB.
+2. In the Globus web app, open the SDSC Expanse endpoint and go to
+   `/expanse/lustre/projects/ucr138/ccain002/LAE_Catalogs/`. Choose *Share → Add guest collection*.
 3. Grant **read** access to your collaborators' Globus identities (or email
    addresses).
 4. Collaborators transfer the tar to their own endpoint (a Globus Connect
@@ -28,9 +28,9 @@ The data is shared in two parts:
 
 ## Collaborators with Expanse accounts
 
-Make the tar world-readable (it already is: `-rwxrwxrwx`) and every parent
-directory traversable (`chmod o+x` on each). Collaborators then run
-`LAEData("/expanse/.../LAE_Catalogs.tar")` directly, with no copying.
+The tar is world-readable and every parent directory is traversable, so any
+Expanse user can read it in place with no copying:
+`LAEData("/expanse/lustre/projects/ucr138/ccain002/LAE_Catalogs/LAE_Catalogs.tar")`.
 
 ## Code access
 
@@ -70,7 +70,7 @@ quota headroom.
 
 ```bash
 pip install --user git+https://github.com/ccain002/lae-spectra.git
-laespec pack /expanse/lustre/scratch/ccain002/temp_project/for_Yongda/LAE_Catalogs.tar \
+laespec pack /expanse/lustre/projects/ucr138/ccain002/LAE_Catalogs/LAE_Catalogs.tar \
     --out /path/with/space/LAE_share \
     --full-halos            # optional: also package the 25.6 GB of full halo catalogs
 ```

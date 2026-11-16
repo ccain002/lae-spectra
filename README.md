@@ -59,7 +59,8 @@ export LAESPEC_DATA=/path/to/LAE_Catalogs.tar    # optional: lets LAEData() find
 laespec info /path/to/LAE_Catalogs.tar           # summary of models / redshifts / files
 ```
 
-If you have an Expanse account, point `LAEData` at the tar there directly.
+If you have an Expanse account, skip the transfer and read it in place:
+`LAEData("/expanse/lustre/projects/ucr138/ccain002/LAE_Catalogs/LAE_Catalogs.tar")`.
 
 ## Usage
 
