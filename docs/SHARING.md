@@ -1,19 +1,67 @@
 # Sharing the LAE data with collaborators
 
-The full archive is 48 GB: 22.3 GB of spectra and 25.6 GB of halo catalogs.
-Most users only need the spectra and the halo properties of the sightlines,
-and those fit in **about 22.6 GB** once the halo catalogs are trimmed to the
-matched rows. The workflow is:
+The data is shared in two parts:
 
-1. **Repackage** the tar into per-model archives plus a small matched-halo
-   archive, with a checksummed `manifest.json` (`laespec pack`).
-2. **Upload** the archives to a host that serves plain HTTPS downloads
-   (Zenodo is recommended).
-3. **Publish the manifest**: put the download URLs into `laespec/manifest.json`
-   in this repo and push. After that, collaborators only need
-   `pip install` and `laespec fetch`.
+- **The bundled example in the repo.** One real spectrum file
+  (`late_end_early_start_13`, z = 6.9746, `skip=539`, 40 MB) is in
+  `laespec/example_data/`, along with the wavelength grid and the matched
+  halo rows. It comes with every clone and every `pip install`, so
+  `laespec.example()`, the quickstart and the tests work right away.
+- **The full 48 GB dataset on Globus.** That's 22.3 GB of spectra plus
+  25.6 GB of halo catalogs.
 
-## 1. Repackage (on Expanse)
+## Globus
+
+1. **Move the data off scratch first.** Lustre scratch is purged, so copy
+   `LAE_Catalogs.tar` (from `/expanse/lustre/scratch/ccain002/temp_project/for_Yongda/`)
+   to project storage or another location that won't be deleted. `LAEData`
+   reads the tar as-is. Repackaging (`laespec pack`, below) is optional: it
+   only helps people who want just one model (about 7 GB) instead of the whole
+   48 GB.
+2. In the Globus web app, open the SDSC Expanse endpoint and go to the
+   directory holding the tar. Choose *Share → Add guest collection*.
+3. Grant **read** access to your collaborators' Globus identities (or email
+   addresses).
+4. Collaborators transfer the tar to their own endpoint (a Globus Connect
+   Personal endpoint works on a laptop), then run
+   `LAEData("/where/it/landed/LAE_Catalogs.tar")`.
+
+## Collaborators with Expanse accounts
+
+Make the tar world-readable (it already is: `-rwxrwxrwx`) and every parent
+directory traversable (`chmod o+x` on each). Collaborators then run
+`LAEData("/expanse/.../LAE_Catalogs.tar")` directly, with no copying.
+
+## Code access
+
+The repo is private. Either add each person
+(`gh api -X PUT repos/ccain002/lae-spectra/collaborators/<github-username>`,
+or *Settings → Collaborators* on GitHub), or make it public with
+`gh repo edit ccain002/lae-spectra --visibility public --accept-visibility-change-consequences`.
+For a private repo, collaborators install with the same `pip install git+https://…`
+command after authenticating to GitHub.
+
+Message you can send:
+
+> Code + docs: https://github.com/ccain002/lae-spectra
+> ```
+> pip install git+https://github.com/ccain002/lae-spectra.git   # includes a 40 MB example file
+> python -c "import laespec as ls; print(ls.example().spectra('late_end_early_start_13', 7.0).flux.shape)"
+> ```
+> The full dataset (48 GB) is on Globus: I've shared the collection "<name>" with you.
+> Transfer LAE_Catalogs.tar and use `ls.LAEData("/path/to/LAE_Catalogs.tar")`.
+> See the README for the data format and examples.
+
+## Alternative: Zenodo + `laespec fetch`
+
+Use this route if you later want a public, citable copy with a DOI, or plain
+HTTPS downloads that need no Globus. `laespec pack` splits the tar into
+per-model archives with a checksummed manifest. `laespec fetch` then
+downloads them, with resume support. This route isn't set up yet:
+`laespec/manifest.json` is still empty, so `laespec fetch` has nothing to
+download.
+
+### A1. Repackage (on Expanse)
 
 Run this on a compute node, or in an interactive job: it streams about 22 GB
 and takes roughly 10–30 minutes on Lustre. It needs about 23 GB of free
@@ -43,9 +91,7 @@ The archives are uncompressed tars. `LAEData` reads them in place, so nobody
 has to extract them. Check the result with
 `laespec info /path/with/space/LAE_share`.
 
-## 2. Upload
-
-### Option A: Zenodo (recommended)
+### A2. Upload to Zenodo
 
 Zenodo is free, gives you a DOI to cite in the paper, has no download
 bandwidth limits, and allows up to **50 GB per record**. Spectra plus matched
@@ -57,7 +103,7 @@ the simplest option, and anyone can then download it. If not, publish it with
 **restricted** file access: the files are visible only to people you approve,
 or to anyone holding a *share link*. Make one under the record's
 *Share → Get a link* menu. For a restricted record, add the link's `token` to
-the base URL in step 3, and test one download before handing it out.
+the base URL in step A3, and test one download before handing it out.
 
 Upload straight from Expanse with the REST API, so the files don't have to
 pass through your laptop:
@@ -89,26 +135,7 @@ license and access level, and press **Publish**.
 To do a dry run first, use `https://sandbox.zenodo.org` everywhere above. It
 needs a separate account and token.
 
-### Option B: Globus (data stays on Expanse)
-
-This option suits collaborators with Globus access, or the full 48 GB halo
-catalogs, and avoids any upload. In the Globus web app, open the SDSC Expanse
-Lustre endpoint, go to the directory with the archives, and choose
-*Share → Add guest collection*. Grant read access to your collaborators'
-Globus identities (or email addresses). They then transfer the files to their
-own endpoint. `laespec fetch` doesn't apply here: they point `LAEData` at
-wherever the files land.
-
-Lustre **scratch is purged**. Before using this option, move the data to
-project storage or a location that won't be deleted.
-
-### Option C: collaborators who already have Expanse accounts
-
-Make the tar world-readable (it already is: `-rwxrwxrwx`) and every parent
-directory traversable (`chmod o+x` on each). Collaborators then run
-`LAEData("/expanse/.../LAE_Catalogs.tar")` directly, with no copying.
-
-## 3. Publish the manifest
+### A3. Publish the manifest
 
 Fill in the URLs and commit the manifest into the package, so every install
 carries it:
@@ -137,30 +164,7 @@ laespec fetch --dest /tmp/lae_test --model early_end_early_start_3   # smallest 
 laespec info /tmp/lae_test
 ```
 
-## 4. Give collaborators access
-
-- **Code**: the repo is private. Either add each person
-  (`gh api -X PUT repos/ccain002/lae-spectra/collaborators/<github-username>`,
-  or *Settings → Collaborators* on GitHub), or make it public with
-  `gh repo edit ccain002/lae-spectra --visibility public --accept-visibility-change-consequences`.
-  For a private repo, collaborators install with the same `pip install git+https://…` command
-  after authenticating to GitHub.
-- **Data**: send them the Zenodo record or share link, or add them to the
-  Globus collection.
-- **Instructions for them**: the *Install*, *Get the data* and *Usage*
-  sections of the README.
-
-Message you can send:
-
-> Code + docs: https://github.com/ccain002/lae-spectra
-> ```
-> pip install git+https://github.com/ccain002/lae-spectra.git
-> laespec fetch --dest ~/lae_data            # ~22.6 GB; add --model NAME for a single model
-> python -c "import laespec as ls; print(ls.LAEData('~/lae_data').summary())"
-> ```
-> See the README for the data format and examples.
-
-## Updating the data later
+### Updating the data later
 
 Rerun `laespec pack`. On Zenodo, create a **new version** of the record: it
 gets a new record ID while the concept DOI stays the same. Then rerun

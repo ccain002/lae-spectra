@@ -150,3 +150,32 @@ def test_spectra_helpers():
     m, err = sp.bootstrap(flux, n_boot=20, seed=1)
     assert m.shape == err.shape == (1000,)
     assert laespec.optical_depth(np.array([1.0]))[0] == 0
+
+
+def test_example_data():
+    """The real spectrum file bundled with the package."""
+    d = laespec.example()
+    assert d.models == [laespec.EXAMPLE_MODEL]
+    s = d.spectra(laespec.EXAMPLE_MODEL, z=7.0)  # nearest snapshot: 6.9746
+    assert s.z == laespec.EXAMPLE_Z and s.skip == 539
+    assert s.flux.shape == (N, catalog.N_PIX)
+    assert np.all(np.diff(s.wavelength) > 0)
+    assert s.wavelength[0] == pytest.approx(1210.78, abs=0.01)
+    assert s.wavelength[-1] == pytest.approx(1315.67, abs=0.01)
+    assert 0.0 <= s.flux.min() and s.flux.max() <= 1.0
+
+    # host halos: every 539th halo of a mass-sorted catalog, inside the 200 cMpc/h box
+    assert np.array_equal(s.halo_index, np.arange(N) * 539)
+    assert np.all(np.diff(s.mass) <= 0)
+    assert 8.5 < np.log10(s.mass.min()) < np.log10(s.mass.max()) < 12.5
+    for ax in "xyz":
+        assert 0 <= s.halos[ax].min() and s.halos[ax].max() <= 200
+
+    # reference values from the original data (guards against byte-order / flip bugs)
+    assert ls_mean_at(s, 500.0) == pytest.approx(0.73636, abs=1e-4)
+    T = laespec.lya_transmission(s.wavelength, s.flux, dv=200, sigma_kms=100)
+    assert np.median(T) == pytest.approx(0.64404, abs=1e-4)
+
+
+def ls_mean_at(s, dv):
+    return float(np.mean(laespec.transmission_at(s.wavelength, s.flux, dv=dv)))

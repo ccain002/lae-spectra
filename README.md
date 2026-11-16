@@ -12,9 +12,10 @@ catalogs.
 - Provides vectorised helpers for velocity offsets, resampling, rebinning,
   instrumental smoothing, stacking in halo-mass bins, bootstrap errors, and the
   transmitted fraction of an intrinsic Lyα line (T_Lyα).
-- Downloads with `laespec fetch`, with resume support and checksums.
+- Ships with one real spectrum file (z ≈ 7), so examples and tests run out of the box.
 
 Only `numpy` is required (Python ≥ 3.7). `matplotlib` is needed only for the example.
+The install includes a ~41 MB example spectrum file, so you can try everything right away.
 
 ## Install
 
@@ -24,23 +25,41 @@ pip install git+https://github.com/ccain002/lae-spectra.git
 git clone https://github.com/ccain002/lae-spectra.git && cd lae-spectra && pip install -e .
 ```
 
-## Get the data
+## Try it without downloading anything
 
-```bash
-laespec fetch --list --dest ~/lae_data          # see what's available and how big it is
-laespec fetch --dest ~/lae_data                 # all spectra + matched halos (~22.6 GB)
-laespec fetch --dest ~/lae_data --model late_end_early_start_13   # one model (~7.2 GB)
-laespec fetch --dest ~/lae_data --halo-catalogs # also the full halo catalogs (+25.6 GB)
-export LAESPEC_DATA=~/lae_data                  # optional: lets LAEData() find it by default
+The package ships with one real spectrum file (about 41 MB): model
+`late_end_early_start_13`, z = 6.9746, `skip=539`, so 10,000 sightlines that
+uniformly sample the halo catalog. It includes each sightline's host-halo
+properties.
+
+```python
+import laespec as ls
+spec = ls.example().spectra("late_end_early_start_13", z=7.0)
+spec.flux.shape, spec.mass[:3]
 ```
 
-Interrupted downloads resume when you rerun the same command. Files already
-downloaded are skipped. If you have access to the original tar on Expanse, skip
-the download and point `LAEData` at the tar.
+```bash
+python examples/quickstart.py     # plots from the bundled file -> quickstart.png
+pytest tests                      # includes checks against the bundled file
+```
+
+## Get the full data
+
+The full dataset is 48 GB: 4 reionization models, 86 redshifts, and the
+halo catalogs. It is shared through **Globus**. Ask the maintainer for access
+to the collection, then transfer `LAE_Catalogs.tar` (or the per-model
+archives) to your own machine. There's no need to extract anything:
+
+```python
+data = ls.LAEData("/path/to/LAE_Catalogs.tar")   # or the directory you transferred into
+```
 
 ```bash
-laespec info ~/lae_data            # summary of models / redshifts / files
+export LAESPEC_DATA=/path/to/LAE_Catalogs.tar    # optional: lets LAEData() find it by default
+laespec info /path/to/LAE_Catalogs.tar           # summary of models / redshifts / files
 ```
+
+If you have an Expanse account, point `LAEData` at the tar there directly.
 
 ## Usage
 
@@ -48,12 +67,12 @@ laespec info ~/lae_data            # summary of models / redshifts / files
 import numpy as np
 import laespec as ls
 
-data = ls.LAEData("~/lae_data")          # or "LAE_Catalogs.tar", or LAEData() with $LAESPEC_DATA
+data = ls.LAEData("LAE_Catalogs.tar")    # or a directory; LAEData() uses $LAESPEC_DATA; ls.example() for the bundled file
 data.models                               # ['early_end_early_start_3', 'late_end_early_start_13', ...]
 data.redshifts("late_end_early_start_13")
 
 # One file = 10000 sightlines at one redshift
-spec = data.spectra("late_end_early_start_13", z=7.0, sampling="uniform")  # nearest z within 0.02
+spec = data.spectra("late_end_early_start_13", z=7.0, sampling="uniform")  # nearest snapshot within dz = 0.05 (here 6.9746)
 spec.wavelength      # (1000,) rest-frame Angstrom, ascending
 spec.flux            # (10000, 1000) transmission, lazy read-only memmap
 spec.velocity        # km/s from Lya line centre
@@ -83,12 +102,13 @@ catalog. That is a uniform sample of the halo population, which is dominated
 by faint, low-mass halos. Pass `skip=` to choose a file exactly.
 
 See [`examples/quickstart.py`](examples/quickstart.py) for a complete script
-that makes plots.
+that makes plots. It runs on the bundled file by default.
 
 ### Function reference
 
 | | |
 |---|---|
+| `example()` | `LAEData` for the bundled z = 6.97 file |
 | `LAEData(*paths)` | index the data; `.models`, `.redshifts()`, `.table()`, `.summary()`, `.find()` |
 | `LAEData.spectra(model, z, sampling, skip, ascending, mmap)` | load one file → `Spectra` |
 | `LAEData.halo_catalog(z)` | full halo catalog (structured array) |
@@ -139,9 +159,11 @@ spans the whole catalog. The box is 200 cMpc/h on a side (positions span 0–200
 pip install pytest && pytest tests
 ```
 
-The tests build a tiny synthetic dataset, so they don't need the real data.
+Most tests build a tiny synthetic dataset. `test_example_data` checks the
+bundled real file against reference values.
 
 ## For the data maintainer
 
-[`docs/SHARING.md`](docs/SHARING.md) explains how to repackage the data, upload
-it (Zenodo or Globus), and publish the manifest that `laespec fetch` uses.
+[`docs/SHARING.md`](docs/SHARING.md) explains how to share the full data over
+Globus. It also covers the optional `laespec pack` / `fetch` route through
+Zenodo.

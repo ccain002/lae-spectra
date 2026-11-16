@@ -10,3 +10,6 @@ dist/
 spec_out_*
 halo_xvm_catalog*
 wav_out_*
+# ...except the small bundled example (one 40 MB spectrum file)
+!laespec/example_data/
+!laespec/example_data/*

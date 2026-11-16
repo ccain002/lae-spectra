@@ -390,7 +390,7 @@ class LAEData:
         return "<LAEData: {} spectrum files, {} models>".format(len(self.files), len(self.models))
 
     def find(self, model: str, z: float, sampling: str = "uniform",
-             skip: Optional[int] = None, tol: float = 0.02) -> SpectrumFile:
+             skip: Optional[int] = None, tol: float = 0.05) -> SpectrumFile:
         """Return the spectrum file for ``model`` closest to redshift ``z``.
 
         ``sampling`` is ``'uniform'`` (every k-th halo, k > 1) or ``'mass'``
@@ -436,7 +436,7 @@ class LAEData:
 
     def spectra(self, model: str, z: float, sampling: str = "uniform",
                 skip: Optional[int] = None, ascending: bool = True,
-                mmap: bool = True, tol: float = 0.02) -> Spectra:
+                mmap: bool = True, tol: float = 0.05) -> Spectra:
         """Load one spectrum file as a :class:`Spectra` object.
 
         With ``mmap=True`` (default) the flux is a lazy read-only memmap: cheap
@@ -501,3 +501,24 @@ class LAEData:
                 "(row i = halo i*skip only holds for {}-sightline files)".format(
                     f.name, f.n_sightlines, N_HALO_DEFAULT))
         return np.array(self.halo_catalog(f.zstr)[idx])
+
+
+# --------------------------------------------------------------------------
+# bundled example
+# --------------------------------------------------------------------------
+
+EXAMPLE_DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "example_data")
+EXAMPLE_MODEL = "late_end_early_start_13"
+EXAMPLE_Z = 6.9746
+
+
+def example() -> LAEData:
+    """The small dataset shipped with the package (~41 MB).
+
+    One spectrum file: model ``late_end_early_start_13``, z = 6.9746,
+    ``skip=539`` (10000 sightlines uniformly sampling the halo catalog), plus
+    the wavelength grid and the host-halo properties of every sightline.
+
+    >>> spec = example().spectra(EXAMPLE_MODEL, EXAMPLE_Z)
+    """
+    return LAEData(EXAMPLE_DATA, use_cache=False)
