@@ -7,8 +7,9 @@ The data is shared in two parts:
   `laespec/example_data/`, along with the wavelength grid and the matched
   halo rows. It comes with every clone and every `pip install`, so
   `laespec.example()`, the quickstart and the tests work right away.
-- **The full 48 GB dataset on Globus.** That's 22.3 GB of spectra plus
-  25.6 GB of halo catalogs.
+- **The full 45.5 GB dataset on Globus.** That's 20.4 GB of spectra plus
+  25.1 GB of halo catalogs. The z = 5.7882 snapshot is left out: see the
+  README, which also lists the 13 snapshots with a NaN sightline.
 
 ## Globus
 
@@ -17,7 +18,7 @@ The data is shared in two parts:
    That directory holds only this tar, so a guest collection rooted there
    shares nothing else. `LAEData` reads the tar as-is. Repackaging
    (`laespec pack`, below) is optional: it only helps people who want just
-   one model (about 7 GB) instead of the whole 48 GB.
+   one model (about 7 GB) instead of the whole 45.5 GB.
 2. In the Globus web app, open the SDSC Expanse endpoint and go to
    `/expanse/lustre/projects/ucr138/ccain002/LAE_Catalogs/`. Choose *Share → Add guest collection*.
 3. Grant **read** access to your collaborators' Globus identities (or email
@@ -48,7 +49,7 @@ Message you can send:
 > pip install git+https://github.com/ccain002/lae-spectra.git   # includes a 40 MB example file
 > python -c "import laespec as ls; print(ls.example().spectra('late_end_early_start_13', 7.0).flux.shape)"
 > ```
-> The full dataset (48 GB) is on Globus: I've shared the collection "<name>" with you.
+> The full dataset (45.5 GB) is on Globus: I've shared the collection "<name>" with you.
 > Transfer LAE_Catalogs.tar and use `ls.LAEData("/path/to/LAE_Catalogs.tar")`.
 > See the README for the data format and examples.
 
@@ -63,28 +64,28 @@ download.
 
 ### A1. Repackage (on Expanse)
 
-Run this on a compute node, or in an interactive job: it streams about 22 GB
-and takes roughly 10–30 minutes on Lustre. It needs about 23 GB of free
-space (about 49 GB with `--full-halos`). Use a filesystem where you have
+Run this on a compute node, or in an interactive job: it streams about 21 GB
+and takes roughly 10–30 minutes on Lustre. It needs about 21 GB of free
+space (about 46 GB with `--full-halos`). Use a filesystem where you have
 quota headroom.
 
 ```bash
 pip install --user git+https://github.com/ccain002/lae-spectra.git
 laespec pack /expanse/lustre/projects/ucr138/ccain002/LAE_Catalogs/LAE_Catalogs.tar \
     --out /path/with/space/LAE_share \
-    --full-halos            # optional: also package the 25.6 GB of full halo catalogs
+    --full-halos            # optional: also package the 25.1 GB of full halo catalogs
 ```
 
 This writes:
 
 | archive | size |
 |---|---|
-| `LAE_spectra_late_end_early_start_13.tar` | 6.9 GB |
-| `LAE_spectra_late_end_late_start_4.tar` | 6.9 GB |
-| `LAE_spectra_late_end_very_early_start_3.tar` | 6.9 GB |
-| `LAE_spectra_early_end_early_start_3.tar` | 1.6 GB |
+| `LAE_spectra_late_end_early_start_13.tar` | 6.8 GB |
+| `LAE_spectra_late_end_late_start_4.tar` | 6.8 GB |
+| `LAE_spectra_late_end_very_early_start_3.tar` | 6.8 GB |
+| `LAE_spectra_early_end_early_start_3.tar` | 0.04 GB |
 | `LAE_matched_halos.tar` | 0.3 GB |
-| `LAE_halo_catalogs_part{1,2}.tar` (with `--full-halos`) | 25.6 GB total, ≤ 20 GB each |
+| `LAE_halo_catalogs_part{1,2}.tar` (with `--full-halos`) | 25.1 GB total, ≤ 20 GB each |
 | `manifest.json` | sizes + SHA-256 of all of the above |
 
 The archives are uncompressed tars. `LAEData` reads them in place, so nobody
@@ -95,7 +96,7 @@ has to extract them. Check the result with
 
 Zenodo is free, gives you a DOI to cite in the paper, has no download
 bandwidth limits, and allows up to **50 GB per record**. Spectra plus matched
-halos (22.6 GB) fit in one record. Put the full halo catalogs in a second
+halos (20.7 GB) fit in one record. Put the full halo catalogs in a second
 record if you want to share them.
 
 **Access.** Publish the record as **open** if the data can be public. That is

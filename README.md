@@ -45,7 +45,7 @@ pytest tests                      # includes checks against the bundled file
 
 ## Get the full data
 
-The full dataset is 48 GB: 4 reionization models, 86 redshifts, and the
+The full dataset is 45.5 GB: 4 reionization models, 85 redshifts, and the
 halo catalogs. It is shared through **Globus**. Ask the maintainer for access
 to the collection, then transfer `LAE_Catalogs.tar` (or the per-model
 archives) to your own machine. There's no need to extract anything:
@@ -143,16 +143,31 @@ spans the whole catalog. The box is 200 cMpc/h on a side (positions span 0–200
 
 | model | redshifts | notes |
 |---|---|---|
-| `late_end_early_start_13` | 86 snapshots, z = 5.00–13.03 | skip=1 and uniform at each z |
-| `late_end_late_start_4` | 86 snapshots, z = 5.00–13.03 | |
-| `late_end_very_early_start_3` | 86 snapshots, z = 5.00–13.03 | |
-| `early_end_early_start_3` | z = 5.79, 13.03 only | the two z = 5.79 files have **200 000** rows (see below) |
+| `late_end_early_start_13` | 85 snapshots, z = 5.00–13.03 | skip=1 and uniform at each z |
+| `late_end_late_start_4` | 85 snapshots, z = 5.00–13.03 | |
+| `late_end_very_early_start_3` | 85 snapshots, z = 5.00–13.03 | |
+| `early_end_early_start_3` | z = 13.03 only | skip=1 file only |
 
-> **Known caveat:** the two `early_end_early_start_3` files at z = 5.7882
-> contain 200 000 sightlines instead of 10 000, and the rule "row i = halo i*k"
-> does not apply to them (200 000 × 887 exceeds the catalog size). Their
-> spectra load fine, but `laespec` reports no halo match for them until the
-> correct mapping is documented.
+**Removed snapshot:** the shared catalog has no z = 5.7882 files. At that
+redshift the two `early_end_early_start_3` files had 200,000 rows with an
+undocumented layout, so the whole snapshot (spectra for every model plus the
+halo catalog) was dropped. The original `LAE_Catalogs.tar` still contains it.
+If you load those 200,000-row files from the original, `laespec` reads the
+spectra but reports no halo match.
+
+**Known caveat: NaN sightlines.** In 13 snapshots, row 0 (the most massive
+halo, so the same sightline in the `skip1` and the uniform file) is NaN over
+most or all of its pixels. Every other value in every file is finite and in
+[0, 1]. The affected snapshots:
+
+| model | z |
+|---|---|
+| `late_end_early_start_13` | 6.1328, 7.7507 |
+| `late_end_late_start_4` | 5.6527, 5.6971, 5.7423 |
+| `late_end_very_early_start_3` | 8.9824, 9.2322, 9.3630, 9.6377, 9.7821, 10.0860, 10.4123, 11.1433 |
+
+Plain means over those files return NaN. Drop the row first, e.g.
+`spec.select(~np.isnan(spec.flux).any(axis=1))`.
 
 ## Tests
 
