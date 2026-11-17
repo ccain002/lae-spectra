@@ -9,7 +9,8 @@ The data is shared in two parts:
   `laespec.example()`, the quickstart and the tests work right away.
 - **The full 45.5 GB dataset on Globus.** That's 20.4 GB of spectra plus
   25.1 GB of halo catalogs. The z = 5.7882 snapshot is left out: see the
-  README, which also lists the 13 snapshots with a NaN sightline.
+  README, which also lists the 13 snapshots regenerated to fix a NaN
+  sightline.
 
 ## Globus
 

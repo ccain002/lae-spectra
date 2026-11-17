@@ -155,19 +155,26 @@ halo catalog) was dropped. The original `LAE_Catalogs.tar` still contains it.
 If you load those 200,000-row files from the original, `laespec` reads the
 spectra but reports no halo match.
 
-**Known caveat: NaN sightlines.** In 13 snapshots, row 0 (the most massive
-halo, so the same sightline in the `skip1` and the uniform file) is NaN over
-most or all of its pixels. Every other value in every file is finite and in
-[0, 1]. The affected snapshots:
+**Fixed: NaN sightlines in 13 snapshots.** In the original June 2026
+spectra, row 0 (the most massive halo) was NaN in the 26 files listed below.
+A bug in the transmission code caused it: when solving for the neutral
+hydrogen density in photoionization equilibrium, it used a temperature array
+before that array was filled in for the current sightline. The first
+sightline of each run therefore saw T = 0, and every later sightline used the
+previous sightline's temperature in those cells. These files were regenerated
+with the fixed code on 2026-11-17, and every value in the shared catalog is
+now finite and in [0, 1]. For the other sightlines the fix changes the mean
+transmission by less than 10⁻⁴. A handful of sightlines per file change by
+more than 0.01, all within about 150 km/s of line centre. The other
+snapshots were not regenerated; there the fix would only make changes of that
+same small size. The scratch copy of the original tar still has the old
+versions.
 
-| model | z |
+| model | z (both the `skip1` and the uniform file) |
 |---|---|
 | `late_end_early_start_13` | 6.1328, 7.7507 |
 | `late_end_late_start_4` | 5.6527, 5.6971, 5.7423 |
 | `late_end_very_early_start_3` | 8.9824, 9.2322, 9.3630, 9.6377, 9.7821, 10.0860, 10.4123, 11.1433 |
-
-Plain means over those files return NaN. Drop the row first, e.g.
-`spec.select(~np.isnan(spec.flux).any(axis=1))`.
 
 ## Tests
 
