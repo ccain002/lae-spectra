@@ -140,7 +140,7 @@ def test_spectra_helpers():
     assert f2.shape == (2, 333) and len(w2) == 333
 
     prof = sp.line_profile(wl, dv=300.0, sigma_kms=50.0)
-    assert np.trapz(prof, wl) == pytest.approx(1.0)
+    assert sp._trapz(prof, wl) == pytest.approx(1.0)  # np.trapz is gone in numpy >= 2.4
     T = sp.lya_transmission(wl, flux, dv=300.0, sigma_kms=50.0)
     assert np.allclose(T, [0.5, 1.0], atol=1e-6)
 

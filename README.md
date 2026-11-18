@@ -19,11 +19,79 @@ The install includes a ~41 MB example spectrum file, so you can try everything r
 
 ## Install
 
+Install into a virtual environment (venv). On Ubuntu 23.04 and later this is
+required: a plain `pip install` into the system Python fails with
+`error: externally-managed-environment`.
+
+### Ubuntu (20.04, 22.04, 24.04)
+
 ```bash
-pip install git+https://github.com/ccain002/lae-spectra.git
-# or, for development
-git clone https://github.com/ccain002/lae-spectra.git && cd lae-spectra && pip install -e .
+# 1. One-time system packages (venv is not installed by default on Ubuntu)
+sudo apt update
+sudo apt install -y python3-venv python3-pip git
+
+# 2. Get the code (the repo is private: see "GitHub access" below)
+git clone https://github.com/ccain002/lae-spectra.git
+cd lae-spectra
+
+# 3. Create and activate a venv inside the repo
+python3 -m venv .venv
+source .venv/bin/activate
+
+# 4. Install laespec plus matplotlib (for the example) and pytest
+python -m pip install --upgrade pip
+python -m pip install -e ".[plot,test]"
+
+# 5. Check it works
+pytest tests
+python examples/quickstart.py      # writes quickstart.png
 ```
+
+Run `source .venv/bin/activate` again in every new terminal before using
+`laespec`, and `deactivate` to leave the venv. `.venv/` is already in
+`.gitignore`. If step 3 says `ensurepip is not available`, install the
+versioned package instead, e.g. `sudo apt install python3.12-venv`, where the
+version matches `python3 --version`. Then delete the half-made `.venv` and
+redo step 3.
+
+### Other systems (macOS, HPC clusters, Windows/WSL)
+
+The same steps work without the `apt` line. On a cluster, load a Python
+module first (e.g. `module load python`). On native Windows, activate with
+`.venv\Scripts\activate`.
+
+### GitHub access
+
+The repository is private, so `git clone` needs your GitHub credentials. Ask
+the maintainer to add you as a collaborator, then either:
+
+- **HTTPS:** when prompted for a password, use a personal access token
+  (GitHub → Settings → Developer settings → Personal access tokens) with
+  read access to this repo. GitHub no longer accepts account passwords
+  here.
+- **SSH** (if you have an SSH key on GitHub):
+  `git clone git@github.com:ccain002/lae-spectra.git`.
+
+### Without a clone
+
+To install the package into an active venv without keeping a checkout:
+
+```bash
+python -m pip install --upgrade pip   # older pip rejects the "name @ url" form
+python -m pip install "laespec[plot] @ git+ssh://git@github.com/ccain002/lae-spectra.git"
+```
+
+The bundled example data is included either way, but the tests and
+`examples/` are only in a clone.
+
+### Using it in Jupyter
+
+```bash
+python -m pip install ipykernel
+python -m ipykernel install --user --name laespec --display-name "Python (laespec)"
+```
+
+Then pick the "Python (laespec)" kernel in Jupyter.
 
 ## Try it without downloading anything
 
@@ -178,8 +246,11 @@ versions.
 
 ## Tests
 
+With the venv active (see [Install](#install)):
+
 ```bash
-pip install pytest && pytest tests
+python -m pip install -e ".[test]"   # already done if you followed the install steps
+pytest tests
 ```
 
 Most tests build a tiny synthetic dataset. `test_example_data` checks the
