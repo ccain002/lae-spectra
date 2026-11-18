@@ -19,11 +19,23 @@ The install includes a ~41 MB example spectrum file, so you can try everything r
 
 ## Install
 
-Install into a virtual environment (venv). On Ubuntu 23.04 and later this is
-required: a plain `pip install` into the system Python fails with
-`error: externally-managed-environment`.
+### Quick install (not on Ubuntu)
 
-### Ubuntu (20.04, 22.04, 24.04)
+If your Python lets you `pip install` directly (macOS, conda, most HPC
+modules), this is all you need:
+
+```bash
+pip install git+https://github.com/ccain002/lae-spectra.git
+# or, for development
+git clone https://github.com/ccain002/lae-spectra.git && cd lae-spectra && pip install -e .
+```
+
+**This won't work with the system Python on Ubuntu 23.04 or later** (or
+Debian 12+). There, pip refuses with `error: externally-managed-environment`.
+Use the venv steps below. They also work everywhere else, and keep `laespec`
+separate from your other Python packages.
+
+### Ubuntu (20.04, 22.04, 24.04) and anywhere else: virtual environment (venv)
 
 ```bash
 # 1. One-time system packages (venv is not installed by default on Ubuntu)
