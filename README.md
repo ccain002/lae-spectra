@@ -219,13 +219,31 @@ Sightline `i` of a `skip<k>` file belongs to halo row `i*k` of the halo
 catalog at the same redshift. With `skip` = N_halo // 10000, the sample
 spans the whole catalog. The box is 200 cMpc/h on a side (positions span 0–200).
 
-**Models** (reionization-history labels; `mono_` prefix is dropped by `laespec`):
+**Models** (reionization histories; `laespec` drops the `mono_` prefix from
+file names). All three come from the simulations of
+[Cohon et al. 2025](https://arxiv.org/abs/2508.05739):
 
-| model | redshifts | notes |
-|---|---|---|
-| `late_end_early_start_13` | 85 snapshots, z = 5.00–13.03 | skip=1 and uniform at each z |
-| `late_end_late_start_4` | 85 snapshots, z = 5.00–13.03 | |
-| `late_end_very_early_start_3` | 85 snapshots, z = 5.00–13.03 | |
+- **Ionization fields:** the FlexRT radiative-transfer code
+  ([Cain & D'Aloisio 2024](https://arxiv.org/abs/2409.04521)), run in a
+  200 h⁻¹ cMpc box.
+- **Gas density and velocity:** a 2048³ RadHydro simulation of the same volume
+  (Δx ≈ 97 h⁻¹ kpc).
+- **Shared calibration:** all three histories end reionization late, at
+  z ≈ 5–5.5, so they match the Lyα forest mean transmission at z ≤ 6. The
+  ionizing emissivity is shared among halos in proportion to their UV
+  luminosity.
+- **What differs:** how early reionization starts.
+
+| model | name in Cohon et al. 2025 | ionized fraction at z = 13 | τ_CMB vs Planck |
+|---|---|---|---|
+| `late_end_late_start_4` | late start | < 1% | slightly more than 1σ low |
+| `late_end_early_start_13` | early start | ≈ 5% | within 1σ |
+| `late_end_very_early_start_3` | very early start | ≈ 25% | 0.085, in tension with Planck's 0.058 ± 0.006 |
+
+Each model has 85 snapshots, z = 5.00–13.03, with a `skip=1` file and a
+uniform file at each redshift. These spectra use the same simulations as that
+paper, but select their sightlines differently: one per halo, ranked by mass
+or sampled uniformly.
 
 **Removed snapshot:** the shared catalog has no z = 5.7882 files. At that
 redshift two of the spectrum files had 200,000 rows with an undocumented
