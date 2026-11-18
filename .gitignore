@@ -17,3 +17,4 @@ wav_out_*
 # virtual environments
 .venv/
 venv/
+!docs/reionization_histories.png

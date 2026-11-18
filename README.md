@@ -234,11 +234,19 @@ file names). All three come from the simulations of
   luminosity.
 - **What differs:** how early reionization starts.
 
-| model | name in Cohon et al. 2025 | ionized fraction at z = 13 | τ_CMB vs Planck |
+| model | name in Cohon et al. 2025 | ionized fraction at z = 13 | τ_CMB |
 |---|---|---|---|
-| `late_end_late_start_4` | late start | < 1% | slightly more than 1σ low |
-| `late_end_early_start_13` | early start | ≈ 5% | within 1σ |
-| `late_end_very_early_start_3` | very early start | ≈ 25% | 0.085, in tension with Planck's 0.058 ± 0.006 |
+| `late_end_late_start_4` | late start | < 1% | 0.049, slightly more than 1σ below Planck's 0.058 ± 0.006 |
+| `late_end_early_start_13` | early start | ≈ 5% | 0.063, within 1σ |
+| `late_end_very_early_start_3` | very early start | ≈ 25% | 0.084, in tension with Planck |
+
+![Reionization histories and CMB optical depth of the three models](docs/reionization_histories.png)
+
+The histories come from FlexRT's global averages. τ is computed from them with
+He II reionization at z = 3.5. The histories and τ(<z) are in
+[`docs/reionization_histories.csv`](docs/reionization_histories.csv), and
+[`docs/make_reionization_plot.py`](docs/make_reionization_plot.py) remakes the
+figure.
 
 Each model has 85 snapshots, z = 5.00–13.03, with a `skip=1` file and a
 uniform file at each redshift. These spectra use the same simulations as that
