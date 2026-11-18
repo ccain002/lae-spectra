@@ -236,19 +236,21 @@ file names). All three come from the simulations of
 
 | model | name in Cohon et al. 2025 | ionized fraction at z = 13 | τ_CMB |
 |---|---|---|---|
-| `late_end_late_start_4` | late start | < 1% | 0.049, slightly more than 1σ below Planck's 0.058 ± 0.006 |
-| `late_end_early_start_13` | early start | ≈ 5% | 0.063, within 1σ |
-| `late_end_very_early_start_3` | very early start | ≈ 25% | 0.084, in tension with Planck |
+| `late_end_late_start_4` | late start | < 1% | slightly more than 1σ below Planck |
+| `late_end_early_start_13` | early start | ≈ 5% | within 1σ of Planck |
+| `late_end_very_early_start_3` | very early start | ≈ 25% | 0.085, more than 4σ above Planck |
 
-![Reionization histories and CMB optical depth of the three models](docs/reionization_histories.png)
+![Fig. 1 of Cohon et al. 2025: reionization histories, Lyα forest mean transmission, and CMB optical depth of the three models](docs/cohon2025_fig1.png)
 
-The figure follows the style of Fig. 1 in Cohon et al. 2025. The histories
-come from FlexRT's global averages, and τ is computed from them with He II
-reionization at z = 3.5. Because of that helium assumption, these τ values
-are 0.001–0.002 lower than the paper's. The histories and τ(<z) are in
-[`docs/reionization_histories.csv`](docs/reionization_histories.csv), and
-[`docs/make_reionization_plot.py`](docs/make_reionization_plot.py) remakes the
-figure.
+*Fig. 1 of [Cohon et al. 2025](https://arxiv.org/abs/2508.05739), reproduced
+with credit.*
+
+- **Left:** the volume-weighted ionized fraction of each model. The dash-dot
+  line marks the z = 13 LAE studied in that paper.
+- **Middle:** the mean Lyα forest transmission at 4.8 < z < 6 (lines),
+  compared with Bosman+22 and Becker+13 (points).
+- **Right:** the CMB electron-scattering optical depth, with the Planck+18 and
+  de Belsunce+21 measurements as bands.
 
 Each model has 85 snapshots, z = 5.00–13.03, with a `skip=1` file and a
 uniform file at each redshift. These spectra use the same simulations as that

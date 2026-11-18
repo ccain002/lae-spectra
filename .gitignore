@@ -17,4 +17,4 @@ wav_out_*
 # virtual environments
 .venv/
 venv/
-!docs/reionization_histories.png
+!docs/cohon2025_fig1.png
