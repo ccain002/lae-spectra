@@ -42,7 +42,7 @@ separate from your other Python packages.
 sudo apt update
 sudo apt install -y python3-venv python3-pip git
 
-# 2. Get the code (the repo is private: see "GitHub access" below)
+# 2. Get the code
 git clone https://github.com/ccain002/lae-spectra.git
 cd lae-spectra
 
@@ -72,25 +72,13 @@ The same steps work without the `apt` line. On a cluster, load a Python
 module first (e.g. `module load python`). On native Windows, activate with
 `.venv\Scripts\activate`.
 
-### GitHub access
-
-The repository is private, so `git clone` needs your GitHub credentials. Ask
-the maintainer to add you as a collaborator, then either:
-
-- **HTTPS:** when prompted for a password, use a personal access token
-  (GitHub → Settings → Developer settings → Personal access tokens) with
-  read access to this repo. GitHub no longer accepts account passwords
-  here.
-- **SSH** (if you have an SSH key on GitHub):
-  `git clone git@github.com:ccain002/lae-spectra.git`.
-
 ### Without a clone
 
 To install the package into an active venv without keeping a checkout:
 
 ```bash
 python -m pip install --upgrade pip   # older pip rejects the "name @ url" form
-python -m pip install "laespec[plot] @ git+ssh://git@github.com/ccain002/lae-spectra.git"
+python -m pip install "laespec[plot] @ git+https://github.com/ccain002/lae-spectra.git"
 ```
 
 The bundled example data is included either way, but the tests and
@@ -125,7 +113,7 @@ pytest tests                      # includes checks against the bundled file
 
 ## Get the full data
 
-The full dataset is 45.5 GB: 4 reionization models, 85 redshifts, and the
+The full dataset is 45.5 GB: 3 reionization models, 85 redshifts, and the
 halo catalogs. It is shared through **Globus**. Ask the maintainer for access
 to the collection, then transfer `LAE_Catalogs.tar` (or the per-model
 archives) to your own machine. There's no need to extract anything:
@@ -149,7 +137,7 @@ import numpy as np
 import laespec as ls
 
 data = ls.LAEData("LAE_Catalogs.tar")    # or a directory; LAEData() uses $LAESPEC_DATA; ls.example() for the bundled file
-data.models                               # ['early_end_early_start_3', 'late_end_early_start_13', ...]
+data.models                               # ['late_end_early_start_13', 'late_end_late_start_4', 'late_end_very_early_start_3']
 data.redshifts("late_end_early_start_13")
 
 # One file = 10000 sightlines at one redshift
@@ -226,35 +214,12 @@ spans the whole catalog. The box is 200 cMpc/h on a side (positions span 0–200
 | `late_end_early_start_13` | 85 snapshots, z = 5.00–13.03 | skip=1 and uniform at each z |
 | `late_end_late_start_4` | 85 snapshots, z = 5.00–13.03 | |
 | `late_end_very_early_start_3` | 85 snapshots, z = 5.00–13.03 | |
-| `early_end_early_start_3` | z = 13.03 only | skip=1 file only |
 
 **Removed snapshot:** the shared catalog has no z = 5.7882 files. At that
-redshift the two `early_end_early_start_3` files had 200,000 rows with an
-undocumented layout, so the whole snapshot (spectra for every model plus the
-halo catalog) was dropped. The original `LAE_Catalogs.tar` still contains it.
-If you load those 200,000-row files from the original, `laespec` reads the
-spectra but reports no halo match.
-
-**Fixed: NaN sightlines in 13 snapshots.** In the original June 2026
-spectra, row 0 (the most massive halo) was NaN in the 26 files listed below.
-A bug in the transmission code caused it: when solving for the neutral
-hydrogen density in photoionization equilibrium, it used a temperature array
-before that array was filled in for the current sightline. The first
-sightline of each run therefore saw T = 0, and every later sightline used the
-previous sightline's temperature in those cells. These files were regenerated
-with the fixed code on 2026-11-17, and every value in the shared catalog is
-now finite and in [0, 1]. For the other sightlines the fix changes the mean
-transmission by less than 10⁻⁴. A handful of sightlines per file change by
-more than 0.01, all within about 150 km/s of line centre. The other
-snapshots were not regenerated; there the fix would only make changes of that
-same small size. The scratch copy of the original tar still has the old
-versions.
-
-| model | z (both the `skip1` and the uniform file) |
-|---|---|
-| `late_end_early_start_13` | 6.1328, 7.7507 |
-| `late_end_late_start_4` | 5.6527, 5.6971, 5.7423 |
-| `late_end_very_early_start_3` | 8.9824, 9.2322, 9.3630, 9.6377, 9.7821, 10.0860, 10.4123, 11.1433 |
+redshift two of the spectrum files had 200,000 rows with an undocumented
+layout, so the whole snapshot (spectra for every model plus the halo catalog)
+was dropped. If you have the original `LAE_Catalogs.tar`, which still contains
+it, `laespec` reads those files' spectra but reports no halo match.
 
 ## Tests
 

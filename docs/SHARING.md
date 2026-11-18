@@ -9,8 +9,7 @@ The data is shared in two parts:
   `laespec.example()`, the quickstart and the tests work right away.
 - **The full 45.5 GB dataset on Globus.** That's 20.4 GB of spectra plus
   25.1 GB of halo catalogs. The z = 5.7882 snapshot is left out: see the
-  README, which also lists the 13 snapshots regenerated to fix a NaN
-  sightline.
+  README.
 
 ## Globus
 
@@ -36,12 +35,9 @@ Expanse user can read it in place with no copying:
 
 ## Code access
 
-The repo is private. Either add each person
-(`gh api -X PUT repos/ccain002/lae-spectra/collaborators/<github-username>`,
-or *Settings → Collaborators* on GitHub), or make it public with
-`gh repo edit ccain002/lae-spectra --visibility public --accept-visibility-change-consequences`.
-For a private repo, collaborators install with the same `pip install git+https://…`
-command after authenticating to GitHub.
+The repo is public, so anyone can clone it or `pip install git+https://…` it
+without a GitHub account. Only the full dataset needs an explicit grant on
+Globus.
 
 Message you can send:
 
@@ -84,7 +80,6 @@ This writes:
 | `LAE_spectra_late_end_early_start_13.tar` | 6.8 GB |
 | `LAE_spectra_late_end_late_start_4.tar` | 6.8 GB |
 | `LAE_spectra_late_end_very_early_start_3.tar` | 6.8 GB |
-| `LAE_spectra_early_end_early_start_3.tar` | 0.04 GB |
 | `LAE_matched_halos.tar` | 0.3 GB |
 | `LAE_halo_catalogs_part{1,2}.tar` (with `--full-halos`) | 25.1 GB total, ≤ 20 GB each |
 | `manifest.json` | sizes + SHA-256 of all of the above |
@@ -162,7 +157,7 @@ Test it as a collaborator would:
 ```bash
 pip install --force-reinstall git+https://github.com/ccain002/lae-spectra.git
 laespec fetch --list --dest /tmp/lae_test
-laespec fetch --dest /tmp/lae_test --model early_end_early_start_3   # smallest archive
+laespec fetch --dest /tmp/lae_test --model late_end_late_start_4   # one model, 6.8 GB
 laespec info /tmp/lae_test
 ```
 

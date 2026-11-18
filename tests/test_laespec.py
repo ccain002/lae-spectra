@@ -38,7 +38,7 @@ def _make_dataset(root, n_cat=3 * N):
             f.tofile(str(spec_dir / "spec_out_mono_{}.z=07.0445_skip{}_LAE".format(model, skip)))
     # a file whose halo mapping is unknown (20x the sightlines)
     np.ones((2 * N, catalog.N_PIX), "<f4").tofile(
-        str(spec_dir / "spec_out_mono_early_end_early_start_3.z=07.0445_skip3_LAE"))
+        str(spec_dir / "spec_out_mono_late_end_very_early_start_3.z=07.0445_skip3_LAE"))
     return wl
 
 
@@ -64,7 +64,7 @@ def test_discovery_and_loading(kind, dataset, tarred):
     path = dataset[0] if kind == "dir" else tarred[0]
     wl_raw = dataset[1]
     d = LAEData(str(path))
-    assert d.models == ["early_end_early_start_3", "late_end_early_start_13", "late_end_late_start_4"]
+    assert d.models == ["late_end_early_start_13", "late_end_late_start_4", "late_end_very_early_start_3"]
     assert np.allclose(d.redshifts("late_end_late_start_4"), [7.0445])
     assert len(d.files) == 5
     assert d.n_halos(7.0445) == 3 * N
@@ -87,7 +87,7 @@ def test_discovery_and_loading(kind, dataset, tarred):
     raw = d.spectra("mono_late_end_early_start_13", 7.04, sampling="mass", ascending=False, mmap=False)
     assert raw.skip == 1 and np.allclose(raw.flux[:, 0], np.arange(N))
 
-    big = d.spectra("early_end_early_start_3", 7.04)
+    big = d.spectra("late_end_very_early_start_3", 7.04)
     assert big.flux.shape[0] == 2 * N and big.halo_index is None
     with pytest.raises(LookupError):
         big.halos
