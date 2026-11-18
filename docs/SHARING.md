@@ -8,8 +8,7 @@ The data is shared in two parts:
   halo rows. It comes with every clone and every `pip install`, so
   `laespec.example()`, the quickstart and the tests work right away.
 - **The full 45.5 GB dataset on Globus.** That's 20.4 GB of spectra plus
-  25.1 GB of halo catalogs. The z = 5.7882 snapshot is left out: see the
-  README.
+  25.1 GB of halo catalogs.
 
 ## Globus
 

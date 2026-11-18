@@ -245,12 +245,6 @@ uniform file at each redshift. These spectra use the same simulations as that
 paper, but select their sightlines differently: one per halo, ranked by mass
 or sampled uniformly.
 
-**Removed snapshot:** the shared catalog has no z = 5.7882 files. At that
-redshift two of the spectrum files had 200,000 rows with an undocumented
-layout, so the whole snapshot (spectra for every model plus the halo catalog)
-was dropped. If you have the original `LAE_Catalogs.tar`, which still contains
-it, `laespec` reads those files' spectra but reports no halo match.
-
 ## Tests
 
 With the venv active (see [Install](#install)):
