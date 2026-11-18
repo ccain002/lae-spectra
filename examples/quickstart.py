@@ -49,17 +49,36 @@ v = typical.velocity
 for i, n in enumerate(counts):
     if n:
         ax[1].plot(v, stacked[i], label=r"$\log M$ = {}-{} (N={})".format(bins[i], bins[i + 1], n))
-ax[1].set(xlabel="velocity offset [km/s]", ylabel="mean transmission", xlim=(-200, 3000))
+vlim = (-200, 1500)  # km/s; the damping-wing turn-on happens within this range
+ax[1].set(xlabel="velocity offset [km/s]", ylabel="mean transmission", xlim=vlim)
 ax[1].legend(fontsize=8)
 
-# 3. Transmitted fraction of a Gaussian Lya line (offset 200 km/s, sigma 100 km/s)
+# 3. Individual sightlines: a few random ones from each mass bin, coloured by host-halo mass
+rng = np.random.default_rng(1)
+pick = []
+for a, b in zip(bins[:-1], bins[1:]):
+    inbin = np.flatnonzero((logm >= a) & (logm < b))
+    pick.extend(rng.choice(inbin, size=min(4, len(inbin)), replace=False))
+pick = np.array(pick)
+norm = matplotlib.colors.Normalize(vmin=bins[0], vmax=bins[-1])
+cmap = plt.get_cmap("viridis")
+for i in pick:
+    ax[2].plot(v, typical.flux[i], color=cmap(norm(logm[i])), lw=1)
+ax[2].plot(v, typical.mean(), "k--", lw=1.5, label="mean of all {}".format(len(typical)))
+ax[2].set(xlabel="velocity offset [km/s]", ylabel="transmission", xlim=vlim,
+          title="{} individual sightlines".format(len(pick)))
+ax[2].legend(loc="lower right", fontsize=8)
+for a in ax[1:]:
+    a.set_xticks([0, 250, 500, 750, 1000, 1250, 1500])
+fig.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax[2],
+             label=r"$\log_{10} M_{\rm halo}$ [$M_\odot/h$]")
+
+# Transmitted fraction of a Gaussian Lya line (offset 200 km/s, sigma 100 km/s), per sightline
 T = ls.lya_transmission(typical.wavelength, typical.flux, dv=200, sigma_kms=100)
-ax[2].plot(logm, T, ",", color="0.6", alpha=0.5)
-med = [np.median(T[(logm >= a) & (logm < b)]) if np.any((logm >= a) & (logm < b)) else np.nan
-       for a, b in zip(bins[:-1], bins[1:])]
-ax[2].plot(0.5 * (np.array(bins[:-1]) + bins[1:]), med, "ko-", label="median")
-ax[2].set(xlabel=r"$\log_{10} M_{\rm halo}$ [$M_\odot/h$]", ylabel=r"$T_{\rm Ly\alpha}$", ylim=(0, 1))
-ax[2].legend()
+for a, b in zip(bins[:-1], bins[1:]):
+    sel = (logm >= a) & (logm < b)
+    if sel.any():
+        print("log M = {}-{}: median T_Lya = {:.3f} (N = {})".format(a, b, np.median(T[sel]), sel.sum()))
 
 fig.tight_layout()
 fig.savefig("quickstart.png", dpi=120)
