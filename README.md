@@ -242,8 +242,10 @@ file names). All three come from the simulations of
 
 ![Reionization histories and CMB optical depth of the three models](docs/reionization_histories.png)
 
-The histories come from FlexRT's global averages. τ is computed from them with
-He II reionization at z = 3.5. The histories and τ(<z) are in
+The figure follows the style of Fig. 1 in Cohon et al. 2025. The histories
+come from FlexRT's global averages, and τ is computed from them with He II
+reionization at z = 3.5. Because of that helium assumption, these τ values
+are 0.001–0.002 lower than the paper's. The histories and τ(<z) are in
 [`docs/reionization_histories.csv`](docs/reionization_histories.csv), and
 [`docs/make_reionization_plot.py`](docs/make_reionization_plot.py) remakes the
 figure.

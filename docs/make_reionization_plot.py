@@ -29,7 +29,8 @@ MODELS = [("late_end_late_start_4", "late start"),
 OM, OB, HH, Y = 0.305147, 0.048, 0.68, 0.246
 SIGMA_T, C, G, M_H, MPC = 6.6524587e-25, 2.99792458e10, 6.6743e-8, 1.6735575e-24, 3.0856776e24
 Z_HE3 = 3.5
-PLANCK_TAU, PLANCK_ERR = 0.058, 0.006  # value quoted in Cohon et al. 2025
+PLANCK_TAU, PLANCK_ERR = 0.058, 0.006  # Planck+18 band as plotted in Cohon et al. 2025
+DEBELSUNCE_TAU, DEBELSUNCE_LO, DEBELSUNCE_HI = 0.0627, 0.0058, 0.0050  # de Belsunce et al. 2021
 
 
 def read_otf(path):
@@ -71,54 +72,43 @@ def build_csv(otf_dir):
 
 
 def plot():
+    """Same style as Fig. 1 of Cohon et al. 2025."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
     d = np.genfromtxt(CSV, delimiter=",", names=True)
     z = d["z"]
-    # default categorical slots 1-3 (blue, orange, aqua), plus line style as a second cue
-    colors = ["#2a78d6", "#eb6834", "#1baf7a"]
-    styles = ["-", "--", "-."]
-    ink, ink2, grid, surface = "#1f1f1e", "#5c5b55", "#e4e3df", "#fcfcfb"
+    styles = [dict(color="k", ls="-"), dict(color="r", ls="--"), dict(color="b", ls=":")]
 
-    plt.rcParams.update({"font.size": 10, "axes.edgecolor": ink2, "axes.labelcolor": ink,
-                         "xtick.color": ink2, "ytick.color": ink2, "text.color": ink})
-    fig, ax = plt.subplots(1, 2, figsize=(10, 3.9), facecolor=surface)
+    fig, ax = plt.subplots(1, 2, figsize=(12, 4.6))
     for a in ax:
-        a.set_facecolor(surface)
-        a.grid(color=grid, lw=0.8)
-        a.set_axisbelow(True)
-        for s in ("top", "right"):
-            a.spines[s].set_visible(False)
-        a.set_xlim(4.8, 16)
-        a.set_xlabel("redshift z")
-        a.axvspan(5.0, 13.04, color="#efeeea", lw=0, zorder=0)
+        a.minorticks_on()
+        a.tick_params(which="both", direction="in", top=True, right=True, labelsize=14)
+        a.tick_params(which="major", length=8, width=1)
+        a.tick_params(which="minor", length=4, width=1)
+        a.set_xlim(4.3, 18.3)
+        a.set_xlabel("Redshift", fontsize=18, family="serif")
 
-    for (model, name), c, ls in zip(MODELS, colors, styles):
-        x = d[model + "_xHII_vol"]
-        tau = d[model + "_tau_lt_z"]
-        tau_tot = tau_cumulative(z, d[model + "_xHII_mass"])[1]
-        ax[0].plot(z, x, color=c, ls=ls, lw=2, label=name)
-        ax[1].plot(z, tau, color=c, ls=ls, lw=2, label="{}: τ = {:.3f}".format(name, tau_tot))
-        zl, off, ha = (7.4, (-6, -4), "right") if name == "late start" else (10.5, (6, 9), "left")
-        i = np.argmin(abs(z - zl))
-        ax[0].annotate(name, (z[i], x[i]), xytext=off, textcoords="offset points", fontsize=9, color=ink,
-                       ha=ha, va="top" if ha == "right" else "baseline")
+    for (model, name), st in zip(MODELS, styles):
+        ax[0].plot(z, d[model + "_xHII_vol"], lw=2.5, label=name.upper(), **st)
+        ax[1].plot(z, d[model + "_tau_lt_z"], lw=2.5, **st)
 
-    ax[0].set(ylabel="volume-weighted ionized fraction", ylim=(0, 1.02),
-              title="Reionization histories")
-    ax[0].text(9.0, 0.96, "range covered by the spectra (z = 5–13)", fontsize=8, color=ink2, ha="center")
+    ax[0].set_ylabel("Ionized Fraction", fontsize=18, family="serif")
+    ax[0].set_ylim(-0.03, 1.05)
+    ax[0].legend(loc="upper right", frameon=False, prop={"family": "serif", "size": 11}, handlelength=3)
 
-    ax[1].axhspan(PLANCK_TAU - PLANCK_ERR, PLANCK_TAU + PLANCK_ERR, color="#d9d8d2", lw=0, zorder=0.5)
-    ax[1].axhline(PLANCK_TAU, color=ink2, lw=1, zorder=0.6)
-    ax[1].text(15.9, PLANCK_TAU + PLANCK_ERR + 0.0015, "Planck τ = 0.058 ± 0.006", fontsize=8, color=ink2,
-               ha="right", va="bottom")
-    ax[1].set(ylabel="CMB optical depth τ(<z)", ylim=(0.03, 0.09), title="Thomson optical depth")
-    ax[1].legend(loc="lower right", frameon=False, fontsize=9)
+    ax[1].axhspan(PLANCK_TAU - PLANCK_ERR, PLANCK_TAU + PLANCK_ERR, color="g", alpha=0.3, lw=0, label="Planck+18")
+    ax[1].axhline(PLANCK_TAU, color="darkgreen", lw=2.5)
+    ax[1].axhspan(DEBELSUNCE_TAU - DEBELSUNCE_LO, DEBELSUNCE_TAU + DEBELSUNCE_HI, color="m", alpha=0.3, lw=0,
+                  label="de Belsunce+21")
+    ax[1].axhline(DEBELSUNCE_TAU, color="m", ls="-.", lw=2.5)
+    ax[1].set_ylabel(r"$\tau_{\rm es}$", fontsize=18)
+    ax[1].set_ylim(0.041, 0.09)
+    ax[1].legend(loc="upper left", fontsize=14)
 
     fig.tight_layout()
-    fig.savefig(PNG, dpi=150, facecolor=surface)
+    fig.savefig(PNG, dpi=150)
     print("wrote", PNG)
 
 
