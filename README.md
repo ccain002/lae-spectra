@@ -114,9 +114,21 @@ pytest tests                      # includes checks against the bundled file
 ## Get the full data
 
 The full dataset is 45.5 GB: 3 reionization models, 85 redshifts, and the
-halo catalogs. It is shared through **Globus**. Ask the maintainer for access
-to the collection, then transfer `LAE_Catalogs.tar` (or the per-model
-archives) to your own machine. There's no need to extract anything:
+halo catalogs. It is shared through **Globus**, as a single file,
+`LAE_Catalogs.tar`:
+
+**Globus collection:**
+<https://app.globus.org/file-manager?origin_id=e06caa06-533b-47fb-b874-7c120d8cf896&origin_path=%2F>
+
+1. Open the link and sign in to Globus. Your university login usually works.
+   If it says you don't have access, ask the maintainer.
+2. In the other pane, pick where the file should go: your cluster's Globus
+   collection, or [Globus Connect Personal](https://www.globus.org/globus-connect-personal)
+   on a laptop or workstation.
+3. Select `LAE_Catalogs.tar` and click **Start**. Globus verifies the
+   transfer's checksum and emails you when it's done.
+
+There's no need to extract anything:
 
 ```python
 data = ls.LAEData("/path/to/LAE_Catalogs.tar")   # or the directory you transferred into

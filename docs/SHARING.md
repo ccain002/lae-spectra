@@ -13,6 +13,14 @@ The data is shared in two parts:
 
 ## Globus
 
+The guest collection is live:
+<https://app.globus.org/file-manager?origin_id=e06caa06-533b-47fb-b874-7c120d8cf896&origin_path=%2F>
+(collection ID `e06caa06-533b-47fb-b874-7c120d8cf896`, rooted at
+`/expanse/lustre/projects/ucr138/ccain002/LAE_Catalogs/`). To change who can
+see it, use the collection's **Permissions** tab in the Globus web app.
+
+How it was set up:
+
 1. **The data lives on project storage**, not scratch, because Lustre scratch is purged:
    `/expanse/lustre/projects/ucr138/ccain002/LAE_Catalogs/LAE_Catalogs.tar`.
    That directory holds only this tar, so a guest collection rooted there
@@ -46,7 +54,8 @@ Message you can send:
 > pip install git+https://github.com/ccain002/lae-spectra.git   # includes a 40 MB example file
 > python -c "import laespec as ls; print(ls.example().spectra('late_end_early_start_13', 7.0).flux.shape)"
 > ```
-> The full dataset (45.5 GB) is on Globus: I've shared the collection "<name>" with you.
+> The full dataset (45.5 GB) is on Globus:
+> https://app.globus.org/file-manager?origin_id=e06caa06-533b-47fb-b874-7c120d8cf896&origin_path=%2F
 > Transfer LAE_Catalogs.tar and use `ls.LAEData("/path/to/LAE_Catalogs.tar")`.
 > See the README for the data format and examples.
 
